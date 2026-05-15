@@ -165,7 +165,7 @@ export default function CaptureModal({ visible, onClose, onSuccess }) {
   /**
    * 提交输入并调用 AI
    */
-  const handleSubmit = useCallback(async () {
+  const handleSubmit = useCallback(async () => {
     if (!input.trim()) {
       Alert.alert('提示', '请输入你的灵感或任务');
       return;
