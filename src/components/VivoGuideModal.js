@@ -16,9 +16,7 @@ import {
   Pressable,
   StyleSheet,
   ScrollView,
-  Linking,
 } from 'react-native';
-import { MotiView } from 'moti';
 import {
   X,
   Bell,
@@ -40,7 +38,6 @@ import {
   Spacing,
   BorderRadius,
   Shadows,
-  Animation,
 } from '../theme/theme';
 
 /**
@@ -110,16 +107,7 @@ export default function VivoGuideModal({ visible, onClose, onComplete }) {
     const isUnknown = item.status === 'unknown';
 
     return (
-      <MotiView
-        key={item.id}
-        from={{ opacity: 0, translateX: -10 }}
-        animate={{ opacity: 1, translateX: 0 }}
-        transition={{
-          type: 'timing',
-          duration: Animation.duration.normal,
-          delay: index * 80,
-        }}
-      >
+      <View key={item.id}>
         <Pressable
           onPress={() => handleItemPress(item)}
           style={({ pressed }) => [
@@ -163,7 +151,7 @@ export default function VivoGuideModal({ visible, onClose, onComplete }) {
             )}
           </View>
         </Pressable>
-      </MotiView>
+      </View>
     );
   };
 
@@ -193,19 +181,14 @@ export default function VivoGuideModal({ visible, onClose, onComplete }) {
         showsVerticalScrollIndicator={false}
       >
         {/* 提示文案 */}
-        <MotiView
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: Animation.duration.normal }}
-          style={styles.hintContainer}
-        >
+        <View style={styles.hintContainer}>
           <Text style={styles.hintText}>
             为了确保任务提醒和后台自愈功能正常工作，建议开启以下权限。
           </Text>
           <Text style={styles.hintSubtext}>
             这些设置不会影响您的日常使用，只是让 MyBrain 能更稳定地为您服务。
           </Text>
-        </MotiView>
+        </View>
 
         {/* 权限列表 */}
         <View style={styles.permissionList}>
@@ -213,19 +196,11 @@ export default function VivoGuideModal({ visible, onClose, onComplete }) {
         </View>
 
         {/* 底部说明 */}
-        <MotiView
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            duration: Animation.duration.normal,
-            delay: report.items.length * 80 + 200,
-          }}
-          style={styles.footer}
-        >
+        <View style={styles.footer}>
           <Text style={styles.footerText}>
             您可以随时在系统设置中修改这些权限。
           </Text>
-        </MotiView>
+        </View>
       </ScrollView>
     );
   };
@@ -239,15 +214,7 @@ export default function VivoGuideModal({ visible, onClose, onComplete }) {
     >
       <View style={styles.overlay}>
         <Pressable style={styles.overlayPress} onPress={onClose}>
-          <MotiView
-            from={{ opacity: 0, scale: 0.95, translateY: 20 }}
-            animate={{ opacity: 1, scale: 1, translateY: 0 }}
-            transition={{
-              type: 'spring',
-              ...Animation.spring.default,
-            }}
-            style={styles.modal}
-          >
+          <View style={styles.modal}>
             {/* 头部 */}
             <View style={styles.header}>
               <Text style={styles.title}>权限设置</Text>
@@ -261,16 +228,7 @@ export default function VivoGuideModal({ visible, onClose, onComplete }) {
 
             {/* 底部按钮 */}
             {!loading && report && (
-              <MotiView
-                from={{ opacity: 0, translateY: 10 }}
-                animate={{ opacity: 1, translateY: 0 }}
-                transition={{
-                  type: 'timing',
-                  duration: Animation.duration.normal,
-                  delay: 500,
-                }}
-                style={styles.buttonContainer}
-              >
+              <View style={styles.buttonContainer}>
                 <Pressable
                   onPress={onClose}
                   style={({ pressed }) => [
@@ -282,9 +240,9 @@ export default function VivoGuideModal({ visible, onClose, onComplete }) {
                     {report.summary.allGranted ? '完成' : '我知道了'}
                   </Text>
                 </Pressable>
-              </MotiView>
+              </View>
             )}
-          </MotiView>
+          </View>
         </Pressable>
       </View>
     </Modal>

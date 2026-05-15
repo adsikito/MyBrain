@@ -4,15 +4,14 @@
  * 灵感捕捉入口 - Things 3 风格的悬浮按钮
  * - 内敛设计，不抢夺视觉焦点
  * - 圆角胶囊形状
- * - moti 驱动的微交互
+ * - 原生 Pressable 微交互
  * - 点击时有轻微弹性反馈
  */
 
 import React, { useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { MotiView } from 'moti';
 import { Sparkles } from 'lucide-react-native';
-import { Colors, Typography, Spacing, BorderRadius, Shadows, Animation } from '../theme/theme';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../theme/theme';
 
 /**
  * CaptureButton 组件
@@ -30,16 +29,7 @@ export default function CaptureButton({ onPress, label = '捕捉灵感' }) {
   }, [onPress]);
 
   return (
-    <MotiView
-      from={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{
-        type: 'timing',
-        duration: Animation.duration.slow,
-        delay: 300,  // 延迟出现，让主内容先加载
-      }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <Pressable
         onPress={handlePress}
         style={({ pressed }) => [
@@ -48,16 +38,10 @@ export default function CaptureButton({ onPress, label = '捕捉灵感' }) {
         ]}
       >
         {({ pressed }) => (
-          <MotiView
-            style={styles.content}
-            animate={{
-              scale: pressed ? 0.96 : 1,
-            }}
-            transition={{
-              type: 'spring',
-              ...Animation.spring.subtle,
-            }}
-          >
+          <View style={[
+            styles.content,
+            pressed && styles.contentPressed,
+          ]}>
             <Sparkles
               size={16}
               color={Colors.text.secondary}
@@ -65,10 +49,10 @@ export default function CaptureButton({ onPress, label = '捕捉灵感' }) {
               style={styles.icon}
             />
             <Text style={styles.label}>{label}</Text>
-          </MotiView>
+          </View>
         )}
       </Pressable>
-    </MotiView>
+    </View>
   );
 }
 
@@ -95,6 +79,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  contentPressed: {
+    transform: [{ scale: 0.96 }],
   },
   icon: {
     marginRight: Spacing.sm,

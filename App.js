@@ -19,9 +19,9 @@ import {
   SafeAreaView,
   FlatList,
   Alert,
+  Animated,
 } from 'react-native';
-import { useEffect, useState, useCallback } from 'react';
-import { MotiView } from 'moti';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { initDatabase, getDatabase } from './src/database/db';
 import TaskCard from './src/components/TaskCard';
 import CaptureButton from './src/components/CaptureButton';
@@ -42,6 +42,40 @@ import {
   Spacing,
   Animation,
 } from './src/theme/theme';
+
+function FadeInView({
+  children,
+  delay = 0,
+  duration = Animation.duration.normal,
+  fromY = 0,
+  style,
+}) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(fromY)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration,
+        delay,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration,
+        delay,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [delay, duration, opacity, translateY]);
+
+  return (
+    <Animated.View style={[style, { opacity, transform: [{ translateY }] }]}>
+      {children}
+    </Animated.View>
+  );
+}
 
 /**
  * 获取当前日期的中文格式
@@ -235,20 +269,12 @@ export default function App() {
    * 渲染单个任务卡片
    */
   const renderTaskCard = useCallback(({ item, index }) => (
-    <MotiView
-      from={{ opacity: 0, translateY: 20 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{
-        type: 'timing',
-        duration: Animation.duration.normal,
-        delay: index * 50,
-      }}
-    >
+    <FadeInView fromY={20} delay={index * 50}>
       <TaskCard
         task={item}
         onPress={handleTaskPress}
       />
-    </MotiView>
+    </FadeInView>
   ), [handleTaskPress]);
 
   /**
@@ -262,16 +288,9 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" />
         <View style={styles.centerContent}>
-          <MotiView
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              type: 'timing',
-              duration: Animation.duration.slow,
-            }}
-          >
+          <FadeInView duration={Animation.duration.slow}>
             <Text style={styles.loadingText}>正在准备...</Text>
-          </MotiView>
+          </FadeInView>
         </View>
       </SafeAreaView>
     );
@@ -296,18 +315,10 @@ export default function App() {
       <StatusBar style="dark" />
 
       {/* 头部区域 - 日期标题 */}
-      <MotiView
-        from={{ opacity: 0, translateY: -10 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{
-          type: 'timing',
-          duration: Animation.duration.normal,
-        }}
-        style={styles.header}
-      >
+      <FadeInView fromY={-10} style={styles.header}>
         <Text style={styles.dateText}>{getFormattedDate()}</Text>
         <Text style={styles.greetingText}>{getGreeting()}</Text>
-      </MotiView>
+      </FadeInView>
 
       {/* 任务列表 */}
       <FlatList

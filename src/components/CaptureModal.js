@@ -21,7 +21,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { MotiView, MotiText } from 'moti';
 import { X, Sparkles, Send } from 'lucide-react-native';
 import { callAI } from '../services/aiService';
 import { getDatabase } from '../database/db';
@@ -31,7 +30,6 @@ import {
   Spacing,
   BorderRadius,
   Shadows,
-  Animation,
 } from '../theme/theme';
 
 /**
@@ -199,55 +197,34 @@ export default function CaptureModal({ visible, onClose, onSuccess }) {
    * 渲染思考中的动画
    */
   const renderThinking = () => (
-    <MotiView
-      from={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      style={styles.thinkingContainer}
-    >
+    <View style={styles.thinkingContainer}>
       <ActivityIndicator size="small" color={Colors.text.secondary} />
-      <MotiText
-        from={{ opacity: 0.4 }}
-        animate={{ opacity: 1 }}
-        transition={{
-          type: 'timing',
-          duration: 800,
-          loop: true,
-        }}
-        style={styles.thinkingText}
-      >
+      <Text style={styles.thinkingText}>
         AI 正在思考...
-      </MotiText>
-    </MotiView>
+      </Text>
+    </View>
   );
 
   /**
    * 渲染成功状态
    */
   const renderSuccess = () => (
-    <MotiView
-      from={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      style={styles.successContainer}
-    >
+    <View style={styles.successContainer}>
       <Sparkles size={24} color={Colors.success} />
       <Text style={styles.successText}>任务已创建</Text>
-    </MotiView>
+    </View>
   );
 
   /**
    * 渲染错误状态
    */
   const renderError = () => (
-    <MotiView
-      from={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      style={styles.errorContainer}
-    >
+    <View style={styles.errorContainer}>
       <Text style={styles.errorText}>{errorMsg}</Text>
       <Pressable onPress={() => setStatus('idle')} style={styles.retryButton}>
         <Text style={styles.retryText}>重试</Text>
       </Pressable>
-    </MotiView>
+    </View>
   );
 
   return (
@@ -263,15 +240,7 @@ export default function CaptureModal({ visible, onClose, onSuccess }) {
         style={styles.overlay}
       >
         <Pressable style={styles.overlayPress} onPress={handleClose}>
-          <MotiView
-            from={{ opacity: 0, scale: 0.95, translateY: 20 }}
-            animate={{ opacity: 1, scale: 1, translateY: 0 }}
-            transition={{
-              type: 'spring',
-              ...Animation.spring.default,
-            }}
-            style={styles.modal}
-          >
+          <View style={styles.modal}>
             {/* 头部 */}
             <View style={styles.header}>
               <Text style={styles.title}>捕捉灵感</Text>
@@ -324,7 +293,7 @@ export default function CaptureModal({ visible, onClose, onSuccess }) {
                 </Text>
               </Pressable>
             ) : null}
-          </MotiView>
+          </View>
         </Pressable>
       </KeyboardAvoidingView>
     </Modal>

@@ -4,21 +4,20 @@
  * Things 3 风格的任务卡片：
  * - 无边框设计，仅 0.5px 底部分割线
  * - 极淡阴影，悬浮感
- * - moti 驱动的非线性动画
+ * - 原生 Pressable 反馈
  * - 点击时轻微缩放反馈
  * - 根据 track 字段显示三轨图标
  */
 
 import React, { useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { MotiView } from 'moti';
 import {
   Zap,
   Route,
   HelpCircle,
   Check,
 } from 'lucide-react-native';
-import { Colors, Typography, Spacing, Shadows, Animation, Borders } from '../theme/theme';
+import { Colors, Typography, Spacing, Borders } from '../theme/theme';
 
 /**
  * 三轨图标映射
@@ -83,107 +82,60 @@ export default function TaskCard({ task, onPress, onLongPress }) {
   }, [task, onLongPress]);
 
   return (
-    <MotiView
-      from={{ opacity: 0, translateY: 8 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{
-        type: 'timing',
-        duration: Animation.duration.normal,
-      }}
+    <Pressable
+      onPress={handlePress}
+      onLongPress={handleLongPress}
+      style={({ pressed }) => [
+        styles.card,
+        pressed && styles.cardPressed,
+      ]}
     >
-      <Pressable
-        onPress={handlePress}
-        onLongPress={handleLongPress}
-        style={({ pressed }) => [
-          styles.container,
-          pressed && styles.pressed,
-        ]}
-      >
-        {({ pressed }) => (
-          <MotiView
-            style={styles.card}
-            animate={{
-              scale: pressed ? 0.98 : 1,
-              opacity: pressed ? 0.9 : 1,
-            }}
-            transition={{
-              type: 'spring',
-              ...Animation.spring.subtle,
-            }}
+      {/* 轨道图标 */}
+      <View style={styles.iconContainer}>
+        <TrackIcon
+          size={20}
+          color={isCompleted ? Colors.text.tertiary : trackColor}
+          strokeWidth={1.5}
+          opacity={isCompleted ? 0.4 : 1}
+        />
+      </View>
+
+      {/* 任务内容 */}
+      <View style={styles.content}>
+        <Text
+          style={[
+            styles.title,
+            isCompleted && styles.titleCompleted,
+          ]}
+          numberOfLines={1}
+        >
+          {title}
+        </Text>
+
+        {description ? (
+          <Text
+            style={[
+              styles.description,
+              isCompleted && styles.descriptionCompleted,
+            ]}
+            numberOfLines={1}
           >
-            {/* 轨道图标 */}
-            <View style={styles.iconContainer}>
-              <MotiView
-                animate={{
-                  scale: isCompleted ? 0.9 : 1,
-                  opacity: isCompleted ? 0.4 : 1,
-                }}
-                transition={{
-                  type: 'spring',
-                  ...Animation.spring.default,
-                }}
-              >
-                <TrackIcon
-                  size={20}
-                  color={isCompleted ? Colors.text.tertiary : trackColor}
-                  strokeWidth={1.5}
-                />
-              </MotiView>
-            </View>
+            {description}
+          </Text>
+        ) : null}
+      </View>
 
-            {/* 任务内容 */}
-            <View style={styles.content}>
-              <Text
-                style={[
-                  styles.title,
-                  isCompleted && styles.titleCompleted,
-                ]}
-                numberOfLines={1}
-              >
-                {title}
-              </Text>
-
-              {description ? (
-                <Text
-                  style={[
-                    styles.description,
-                    isCompleted && styles.descriptionCompleted,
-                  ]}
-                  numberOfLines={1}
-                >
-                  {description}
-                </Text>
-              ) : null}
-            </View>
-
-            {/* 完成状态指示器 */}
-            {isCompleted && (
-              <MotiView
-                from={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  type: 'spring',
-                  ...Animation.spring.subtle,
-                }}
-                style={styles.checkContainer}
-              >
-                <Check size={16} color={Colors.text.tertiary} strokeWidth={2} />
-              </MotiView>
-            )}
-          </MotiView>
-        )}
-      </Pressable>
-    </MotiView>
+      {/* 完成状态指示器 */}
+      {isCompleted && (
+        <View style={styles.checkContainer}>
+          <Check size={16} color={Colors.text.tertiary} strokeWidth={2} />
+        </View>
+      )}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'transparent',
-  },
-  pressed: {
-    backgroundColor: 'transparent',
-  },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -191,6 +143,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     backgroundColor: Colors.background,
     ...Borders.hairline,
+  },
+  cardPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.98 }],
   },
   iconContainer: {
     width: 28,
