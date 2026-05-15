@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "expo": "~54.0.33",
+    "expo-background-fetch": "~14.0.9",
     "expo-device": "~8.0.10",
     "expo-file-system": "~19.0.22",
     "expo-notifications": "~0.32.17",
