@@ -75,6 +75,7 @@ export async function getCompletionHeatmapData(days = 60) {
     `SELECT date(updated_at) as date, COUNT(*) as count
      FROM tasks
      WHERE status = 'COMPLETED'
+       AND deleted_at IS NULL
        AND updated_at >= date('now', '-' || ? || ' days')
      GROUP BY date(updated_at);`,
     [days]

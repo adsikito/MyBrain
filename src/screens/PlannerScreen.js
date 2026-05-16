@@ -55,62 +55,70 @@ export default function PlannerScreen() {
     const db = await getDatabase();
     let savedCount = 0;
 
-    for (const task of parsedData.tasks) {
-      const taskId = generateId();
-      const now = new Date().toISOString();
-      const weight = (task.urgency || 50) * 0.4 + (task.importance || 50) * 0.3;
+    await db.execAsync('BEGIN TRANSACTION;');
+    try {
+      for (const task of parsedData.tasks) {
+        const taskId = generateId();
+        const now = new Date().toISOString();
+        const weight = (task.urgency || 50) * 0.4 + (task.importance || 50) * 0.3;
 
-      await db.runAsync(
-        `INSERT INTO tasks (
-          id, title, description, track, status,
-          priority, urgency, importance, weight,
-          due_date, estimated_minutes, recurrence_rule,
-          created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          taskId,
-          task.title,
-          task.description || null,
-          task.track,
-          'ACTIVE',
-          50,
-          task.urgency || 50,
-          task.importance || 50,
-          weight,
-          task.due_date || null,
-          task.estimated_minutes || null,
-          task.recurrence_rule || null,
-          now,
-          now,
-        ]
-      );
-
-      if (task.track === 'SUSPENSE' && task.suspense_condition) {
-        const conditionId = generateId();
         await db.runAsync(
-          `INSERT INTO suspense_conditions (
-            id, task_id, condition_type, description, target_date, created_at
-          ) VALUES (?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO tasks (
+            id, title, description, track, status,
+            priority, urgency, importance, weight,
+            due_date, estimated_minutes, recurrence_rule,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
-            conditionId,
             taskId,
-            task.suspense_condition.condition_type,
-            task.suspense_condition.description || null,
-            task.suspense_condition.target_date || null,
+            task.title,
+            task.description || null,
+            task.track,
+            'ACTIVE',
+            50,
+            task.urgency || 50,
+            task.importance || 50,
+            weight,
+            task.due_date || null,
+            task.estimated_minutes || null,
+            task.recurrence_rule || null,
+            now,
             now,
           ]
         );
+
+        if (task.track === 'SUSPENSE' && task.suspense_condition) {
+          const conditionId = generateId();
+          await db.runAsync(
+            `INSERT INTO suspense_conditions (
+              id, task_id, condition_type, description, target_date, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              conditionId,
+              taskId,
+              task.suspense_condition.condition_type,
+              task.suspense_condition.description || null,
+              task.suspense_condition.target_date || null,
+              now,
+            ]
+          );
+        }
+
+        const historyId = generateId();
+        await db.runAsync(
+          `INSERT INTO task_status_history (
+            id, task_id, old_status, new_status, changed_at, reason
+          ) VALUES (?, ?, ?, ?, ?, ?)`,
+          [historyId, taskId, null, 'ACTIVE', now, 'AI 自动创建']
+        );
+
+        savedCount++;
       }
 
-      const historyId = generateId();
-      await db.runAsync(
-        `INSERT INTO task_status_history (
-          id, task_id, old_status, new_status, changed_at, reason
-        ) VALUES (?, ?, ?, ?, ?, ?)`,
-        [historyId, taskId, null, 'ACTIVE', now, 'AI 自动创建']
-      );
-
-      savedCount++;
+      await db.execAsync('COMMIT;');
+    } catch (error) {
+      await db.execAsync('ROLLBACK;');
+      throw error;
     }
 
     return savedCount;

@@ -11,7 +11,7 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Svg, Rect, G } from 'react-native-svg';
+import { Svg, Rect, G, Text as SvgText } from 'react-native-svg';
 import { Colors, Typography, Spacing } from '../theme/theme';
 
 // ============================================================
@@ -138,7 +138,7 @@ function MonthLabels({ monthLabels, labelAreaHeight }) {
   return (
     <G>
       {monthLabels.map((item, i) => (
-        <Text
+        <SvgText
           key={i}
           x={item.week * (CELL_SIZE + CELL_GAP) + CELL_SIZE / 2}
           y={labelAreaHeight - 4}
@@ -147,7 +147,7 @@ function MonthLabels({ monthLabels, labelAreaHeight }) {
           textAnchor="middle"
         >
           {item.label}
-        </Text>
+        </SvgText>
       ))}
     </G>
   );
@@ -162,7 +162,7 @@ function DayLabels({ labelWidth }) {
     <G>
       {DAY_LABELS.map((label, i) => (
         label ? (
-          <Text
+          <SvgText
             key={i}
             x={labelWidth - 6}
             y={i * (CELL_SIZE + CELL_GAP) + CELL_SIZE - 2}
@@ -171,7 +171,7 @@ function DayLabels({ labelWidth }) {
             textAnchor="end"
           >
             {label}
-          </Text>
+          </SvgText>
         ) : null
       ))}
     </G>
