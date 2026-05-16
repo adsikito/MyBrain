@@ -21,6 +21,14 @@ expo-env.d.ts
 # Metro
 .metro-health-check*
 
+# Build output
+dist-web/
+dist-android/
+
+# Environment variables (secrets)
+.env
+.env.local
+
 # debug
 npm-debug.*
 yarn-debug.*

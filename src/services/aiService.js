@@ -35,12 +35,13 @@ const MODEL_CONFIG = {
 /**
  * API 密钥
  *
- * 安全说明：
- * - 生产环境应从 expo-secure-store 读取
- * - 或通过环境变量注入
- * - 切勿硬编码在代码中
+ * 通过 Expo 环境变量注入（EXPO_PUBLIC_ 前缀会自动暴露给客户端）
+ * 使用方式：在项目根目录创建 .env 文件，写入：
+ *   EXPO_PUBLIC_AI_API_KEY=你的密钥
+ *
+ * 切勿将真实密钥提交到 Git
  */
-const API_KEY = 'tp-cm0jqjd3tim6z30rw4sbtp8g72ch0g80f0cghyy6kqllzdmm';
+const API_KEY = process.env.EXPO_PUBLIC_AI_API_KEY || '';
 
 // ============================================================
 // System Prompt - 三轨分类核心指令
@@ -183,6 +184,10 @@ export async function callAI(userInput, options = {}) {
     response_format: { type: 'json_object' },  // 强制 JSON 输出（GPT-4o 支持）
   };
 
+  // 超时熔断：30 秒 AbortController
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
   try {
     const response = await fetch(modelConfig.endpoint, {
       method: 'POST',
@@ -191,7 +196,11 @@ export async function callAI(userInput, options = {}) {
         'Authorization': `Bearer ${API_KEY}`,
       },
       body: JSON.stringify(requestBody),
+      signal: controller.signal,
     });
+
+    // 清除超时定时器
+    clearTimeout(timeoutId);
 
     // 检查 HTTP 状态
     if (!response.ok) {
@@ -218,6 +227,14 @@ export async function callAI(userInput, options = {}) {
     return parsed;
 
   } catch (error) {
+    // 清除超时定时器（防止内存泄漏）
+    clearTimeout(timeoutId);
+
+    // 超时熔断：捕获 AbortError，抛出明确提示
+    if (error.name === 'AbortError') {
+      throw new Error('AI 思考超时 (30秒)。可能是网络信号不稳定，请重试。');
+    }
+
     console.error('[MyBrain AI] 请求失败:', error.message);
     throw error;
   }

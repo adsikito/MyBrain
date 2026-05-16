@@ -42,6 +42,7 @@ import {
   Spacing,
   Animation,
 } from './src/theme/theme';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 function FadeInView({
   children,
@@ -285,73 +286,79 @@ export default function App() {
   // 数据库初始化中
   if (!dbReady && !error) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="dark" />
-        <View style={styles.centerContent}>
-          <FadeInView duration={Animation.duration.slow}>
-            <Text style={styles.loadingText}>正在准备...</Text>
-          </FadeInView>
-        </View>
-      </SafeAreaView>
+      <ErrorBoundary>
+        <SafeAreaView style={styles.container}>
+          <StatusBar style="dark" />
+          <View style={styles.centerContent}>
+            <FadeInView duration={Animation.duration.slow}>
+              <Text style={styles.loadingText}>正在准备...</Text>
+            </FadeInView>
+          </View>
+        </SafeAreaView>
+      </ErrorBoundary>
     );
   }
 
   // 初始化失败
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="dark" />
-        <View style={styles.centerContent}>
-          <Text style={styles.errorText}>初始化失败</Text>
-          <Text style={styles.errorDetail}>{error}</Text>
-        </View>
-      </SafeAreaView>
+      <ErrorBoundary>
+        <SafeAreaView style={styles.container}>
+          <StatusBar style="dark" />
+          <View style={styles.centerContent}>
+            <Text style={styles.errorText}>初始化失败</Text>
+            <Text style={styles.errorDetail}>{error}</Text>
+          </View>
+        </SafeAreaView>
+      </ErrorBoundary>
     );
   }
 
   // 主界面
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+    <ErrorBoundary>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" />
 
-      {/* 头部区域 - 日期标题 */}
-      <FadeInView fromY={-10} style={styles.header}>
-        <Text style={styles.dateText}>{getFormattedDate()}</Text>
-        <Text style={styles.greetingText}>{getGreeting()}</Text>
-      </FadeInView>
+        {/* 头部区域 - 日期标题 */}
+        <FadeInView fromY={-10} style={styles.header}>
+          <Text style={styles.dateText}>{getFormattedDate()}</Text>
+          <Text style={styles.greetingText}>{getGreeting()}</Text>
+        </FadeInView>
 
-      {/* 任务列表 */}
-      <FlatList
-        data={tasks}
-        renderItem={renderTaskCard}
-        keyExtractor={keyExtractor}
-        style={styles.list}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>暂无任务</Text>
-            <Text style={styles.emptyHint}>点击下方按钮捕捉灵感</Text>
-          </View>
-        }
-      />
+        {/* 任务列表 */}
+        <FlatList
+          data={tasks}
+          renderItem={renderTaskCard}
+          keyExtractor={keyExtractor}
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>暂无任务</Text>
+              <Text style={styles.emptyHint}>点击下方按钮捕捉灵感</Text>
+            </View>
+          }
+        />
 
-      {/* 灵感捕捉按钮 */}
-      <CaptureButton onPress={handleCapture} />
+        {/* 灵感捕捉按钮 */}
+        <CaptureButton onPress={handleCapture} />
 
-      {/* 灵感捕捉弹窗 */}
-      <CaptureModal
-        visible={captureModalVisible}
-        onClose={handleCloseCapture}
-        onSuccess={handleCaptureSuccess}
-      />
+        {/* 灵感捕捉弹窗 */}
+        <CaptureModal
+          visible={captureModalVisible}
+          onClose={handleCloseCapture}
+          onSuccess={handleCaptureSuccess}
+        />
 
-      {/* vivo 权限引导弹窗 */}
-      <VivoGuideModal
-        visible={vivoGuideVisible}
-        onClose={handleCloseVivoGuide}
-      />
-    </SafeAreaView>
+        {/* vivo 权限引导弹窗 */}
+        <VivoGuideModal
+          visible={vivoGuideVisible}
+          onClose={handleCloseVivoGuide}
+        />
+      </SafeAreaView>
+    </ErrorBoundary>
   );
 }
 
